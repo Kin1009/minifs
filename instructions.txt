@@ -1,0 +1,6 @@
+Install:
+move the minifs folder to Program Files
+run install.reg
+Uníntall:
+delete
+run uninstall.reg 
