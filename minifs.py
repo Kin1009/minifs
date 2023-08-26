@@ -7,7 +7,7 @@ class Exit(Exception):
 class FileSys:
     current_drive = "c"  # Default drive
     drive_folder_path = os.path.join(os.path.expandvars("%LOCALAPPDATA%"), "minifs")
-    VER = "Mini Filesystem [Bugfix 3 Features 3]"
+    VER = "Mini Filesystem [B3F5 (Import / export folders update)] (Bugfix 3 Features 5)"
     def __init__(self):
         self.current_path = []
         self.drive = {}
@@ -143,25 +143,60 @@ class FileSys:
         res = ""
         for i in a: res += chr(i)
         current[filename] = res
-    
+    def path_to_dict(self, path, d={}):
+        name = os.path.basename(path)
+        if os.path.isdir(path):
+            if name not in d:
+                d[name] = {}
+            for x in os.listdir(path):
+                self.path_to_dict(os.path.join(path, x), d[name])
+        else:
+            try:
+                with open(path, 'r') as file:
+                    d[name] = file.read()
+            except Exception as e:
+                print("Error: " + str(e))
+                return d
+        return d
     def import_(self, path):
         if os.path.isfile(path):
             self.write_(os.path.basename(path), open(path, "rb").read())
+        elif os.path.isdir(path):
+            data = self.path_to_dict(path=path)
+            current = self.drive
+            for i in self.current_path:
+                current = current[i]
+            current.update(data)
         else:
-            print("Invalid path / I don't support folder importing yet.")
+            print("Invalid path.")
     def export(self, file, dist):
+        def one_directory(dic, path):
+            for name, info in dic.items():
+                next_path = path + "/" + name
+                if isinstance(info, dict):
+                    next_path = os.path.abspath(next_path)
+                    os.mkdir(next_path)
+                    one_directory(info, next_path)
+                else:
+                    try:
+                        with open(os.path.abspath(os.path.join(next_path)), "w") as f:
+                            f.write(info)
+                    except Exception as e:
+                        print("Error: " + str(e))
         try:
             current = self.drive
             for folder in self.current_path:
                 current = current[folder]
-            if (file not in current) or (not isinstance(current[file], str)):
-                print("Invalid path / I don't support folder exporting yet.")
-            else:
+            if file not in current:
+                print("Invalid path.")
+            elif isinstance(current[file], str):
                 a = open(dist, "w")
                 a.write(current[file])
                 a.close()
+            else:
+                one_directory(current, dist)
         except Exception as e:
-            print("Error exporting file: " + str(e))
+            print("Error: " + str(e))
     def run(self, code_) -> int:
         code_ = code_.splitlines() if "\n" in code_ else [code_]
         for i in code_:
@@ -250,7 +285,7 @@ Basic:
 Create:
     mkdir <folder_name>: make folder
     mkdrv <drive_name>: make drive
-    import <file_on_u_computer>: import that file, store it at current dir
+    import <file_on_u_computer>: import that file / folder, store it at current dir
 Delete:
     del <file_or_folder>: delete file / folder
     deldrv <drive_name>: delete drive
