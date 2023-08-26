@@ -156,7 +156,6 @@ class FileSys:
                     d[name] = file.read()
             except Exception as e:
                 print("Error: " + str(e))
-                return d
         return d
     def import_(self, path):
         if os.path.isfile(path):
@@ -321,7 +320,7 @@ os.makedirs(drive_folder_path, exist_ok=True)
 
 # Example usage
 self = FileSys()
-print(f"{self.VER}\nType \"help\" to get help.")
+print(f"{self.VER}\nType \"help\" to get help.\nThis is depecrated. Download from https://github.com/Kin1009/miniterm")
 while True:
     current_dir = os.path.abspath(os.path.join(drive_folder_path, *self.current_path))
     SEP = "\\"
