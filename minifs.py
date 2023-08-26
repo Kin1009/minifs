@@ -7,7 +7,7 @@ class Exit(Exception):
 class FileSys:
     current_drive = "c"  # Default drive
     drive_folder_path = os.path.join(os.path.expandvars("%LOCALAPPDATA%"), "minifs")
-    VER = "Mini Filesystem [Bugfix 2 Features 3]"
+    VER = "Mini Filesystem [Bugfix 3 Features 3]"
     def __init__(self):
         self.current_path = []
         self.drive = {}
@@ -146,7 +146,6 @@ class FileSys:
     
     def import_(self, path):
         if os.path.isfile(path):
-            self.new_file(os.path.basename(path))
             self.write_(os.path.basename(path), open(path, "rb").read())
         else:
             print("Invalid path / I don't support folder importing yet.")
